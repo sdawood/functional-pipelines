@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
-    "test": "jest --verbose",
+    "test": "jest",
     "prebuild": "rimraf lib",
     "build": "babel --copy-files --out-dir lib --ignore *.spec.js src",
+    "semantic-release": "semantic-release",
     "travis-deploy-once": "travis-deploy-once"
   },
   "dependencies": {
