@@ -1,11 +1,11 @@
 master|develop|npm
 ---|---|---
-[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=master)](https://travis-ci.org/sdawood/functional.js)|[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=develop)](https://travis-ci.org/sdawood/functional.js)|[![npm version](https://badge.fury.io/js/functional.js.svg)](https://badge.fury.io/js/functional.js)
+[![Build Status](https://travis-ci.org/sdawood/functional-pipelines.svg?branch=master)](https://travis-ci.org/sdawood/functional-pipelines)|[![Build Status](https://travis-ci.org/sdawood/functional-pipelines.svg?branch=develop)](https://travis-ci.org/sdawood/functional-pipelines)|[![npm version](https://badge.fury.io/js/functional-pipelines.svg)](https://badge.fury.io/js/functional-pipelines)
 
-# Functional.js
+# functional-pipelines
 
-What do you get out of functional.js?
-functional.js gives you pipe, compose, pipeAsync and composeAsync to start with.
+What do you get out of functional-pipelines?
+functional-pipelines gives you pipe, compose, pipeAsync and composeAsync to start with.
 
 Once you have developed a taste for functional pipelines, you would want to use reduce and reduceRight, they also come in async flavours.
 
@@ -15,7 +15,7 @@ Transformer function, transducing functions and reducing functions are explained
 
 ## Installation
 ```sh
-npm install functional.js --save
+npm install functional-pipelines --save
 ```
 
 ## map, filter, zip, take, skip, partitionBy
@@ -103,7 +103,7 @@ Notice that the functions would need to adhere to an arity of one (accept a sing
 ```javascript
 const composeAsync = (...fns) => reduceAsync((fn1, fn2) => async (...args) => fn1(await fn2(...args)), undefined, fns);
 ```
-`Notice that pipe needs to perform a reduceAsync, which is the a useful utility in functional.js`
+`Notice that pipe needs to perform a reduceAsync, which is the a useful utility in functional-pipelines`
 
 Aside from supporting composing functions, compose can also accept a pipeline of transformer(s)
 
@@ -145,7 +145,7 @@ Don't waste time scratching your head trying to debug the direction of compositi
 If you examine the following example you can figure out that the right-most Transformer is now wrapped as the inner-most function and would indeed execute first, effectively reversing the order of compose to be 'left-to-right' instead of the normal compose 'right-to-left' execution order.
 
 ```javascript
-const F = require('functional.js')
+const F = require('functional-pipelines')
 
 const add10 = x => x + 10;
 const square = x => x * x;

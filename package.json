@@ -1,5 +1,5 @@
 {
-  "name": "functional.js",
+  "name": "functional-pipelines",
   "version": "0.0.0-development",
   "description": "functional pipelines for Java Script",
   "main": "lib/index.js",
@@ -51,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sdawood/functional.js.git"
+    "url": "https://github.com/sdawood/functional-pipelines.git"
   },
   "files": [
     "lib",
@@ -70,7 +70,7 @@
   "author": "Shaady Dawood <shaadydawood@gmail.com> (http://github.com/sdawood/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sdawood/functional.js/issues"
+    "url": "https://github.com/sdawood/functional-pipelines/issues"
   },
-  "homepage": "https://github.com/sdawood/functional.js#readme"
+  "homepage": "https://github.com/sdawood/functional-pipelines#readme"
 }

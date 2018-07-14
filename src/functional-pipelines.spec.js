@@ -49,10 +49,10 @@ async function* dataAsyncGeneratorOfPromises() {
     yield* dataIterable.map(F.identityAsync);
 }
 
-const _fn1 = x => x + 10;
-const _fn2 = x => x * x;
-const fn1 = F.which(_fn1);
-const fn2 = F.which(_fn2);
+const fn1 = x => x + 10;
+const fn2 = x => x * x;
+// const fn1 = F.which(fn1);
+// const fn2 = F.which(_fn2);
 
 const fn1Box = x => [fn1(x)];
 const fn2Box = x => [fn2(x)];
@@ -63,8 +63,8 @@ const fn2Async = x => F.identityAsync(fn2(x));
 const fn1AsyncBox = x => F.identityAsync(fn1Box(x));
 const fn2AsyncBox = x => F.identityAsync(fn2Box(x));
 
-const _predicateEven = x => x % 2 === 0;
-const predicateEven = F.which(_predicateEven);
+const predicateEven = x => x % 2 === 0;
+// const predicateEven = F.which(predicateEven);
 
 const predicateEvenAsync = x => F.identityAsync(predicateEven(x));
 
@@ -164,43 +164,43 @@ describe('sync', () => {
     describe('map', () => {
         it('maps a function over an enumerable -> object values', () => {
             const result = F.map(fn1, dataObject);
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps a function over an enumerable -> iterable', () => {
             const result = F.map(fn1, dataIterable);
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps a function over an enumerable -> iterator', () => {
             const result = F.map(fn1, dataIterator());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps a function over an enumerable -> generator', () => {
             const result = F.map(fn1, dataGenerator());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps a function over an enumerable -> generator of promises', async () => {
             const result = F.map(resolveArgs(fn1), dataGeneratorOfPromises());
             const results = await Promise.all(result);
-            expect(results).toEqual(dataIterable.map(_fn1));
+            expect(results).toEqual(dataIterable.map(fn1));
         });
     });
 
     describe('filter', () => {
         it('maps a function over an enumerable -> object values', () => {
             const result = F.filter(predicateEven, dataObject);
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters a function over an enumerable -> iterable', () => {
             const result = F.filter(predicateEven, dataIterable);
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters a function over an enumerable -> iterator', () => {
             const result = F.filter(predicateEven, dataIterator());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters a function over an enumerable -> generator', () => {
             const result = F.filter(predicateEven, dataGenerator());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
 
         /*
@@ -691,7 +691,7 @@ describe('sync', () => {
         });
         it('transduce using composed transducers * left * to right, over an enumerable -> object values', () => {
             const transducer = F.compose(xformAdd10Box, xformSquareBox, xfilterEven);
-            const reducingFn = transducer(F.which(F.concat(/*reducingFn*/)));
+            const reducingFn = transducer(F.concat(/*reducingFn*/));
             const result = F.reduce(reducingFn, () => [], dataObject);
             expect(result).toEqual(expectedResult);
         });
@@ -717,8 +717,8 @@ describe('sync', () => {
 
     describe('compose= step-function/sum = reducing-function/reduce= pipeline-runner =~ transduce', () => {
         const expectedResult = 1321;
-        const _sum = (a, b) => a + b;
-        const sum = F.which(_sum);
+        const sum = (a, b) => a + b;
+        // const sum = F.which(_sum);
 
         it('transduce using composed transducers * left * to right, over an enumerable -> object values', () => {
             const transducer = F.compose(xformAdd10, xformSquare, xfilterEven);
@@ -757,58 +757,58 @@ describe('async', () => {
     describe('mapAsync', () => {
         it('maps an async function over an enumerable -> object values', async () => {
             const result = await F.mapAsync(fn1Async, F.SymbolAsyncIterator ? dataObject : F.iterator(dataObject));
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps an async function over an enumerable -> iterable', async () => {
             const result = await F.mapAsync(fn1Async, dataIterable);
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps an async function over an enumerable -> iterator', async () => {
             const result = await F.mapAsync(fn1Async, dataIterator());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps an async function over an enumerable -> generator', async () => {
             const result = await F.mapAsync(fn1Async, dataGenerator());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps an async function over an enumerable -> async-generator of values', async () => {
             const result = await F.mapAsync(fn1Async, dataAsyncGenerator());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
         it('maps an async function over an enumerable -> async-generator of Promises', async () => {
             const result = await F.mapAsync(fn1Async, dataAsyncGeneratorOfPromises());
-            expect(result).toEqual(dataIterable.map(_fn1));
+            expect(result).toEqual(dataIterable.map(fn1));
         });
     });
 
     describe('filterAsync', () => {
         it('maps an async function over an enumerable -> object values', async () => {
             const result = await F.filterAsync(predicateEvenAsync, F.SymbolAsyncIterator ? dataObject : F.iterator(dataObject));
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters an async function over an enumerable -> iterable', async () => {
             const result = await F.filterAsync(predicateEvenAsync, dataIterable);
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters an async function over an enumerable -> iterator', async () => {
             const result = await F.filterAsync(predicateEvenAsync, dataIterator());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters an async function over an enumerable -> generator', async () => {
             const result = await F.filterAsync(predicateEvenAsync, dataGenerator());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters an async function over an enumerable -> async-generator of values', async () => {
             const result = await F.filterAsync(predicateEvenAsync, dataAsyncGenerator());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters an async function over an enumerable -> async-generator of Promises', async () => {
             const result = await F.filterAsync(predicateEvenAsync, dataAsyncGeneratorOfPromises());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
         it('filters a predicate function over an enumerable -> async-generator of Promises', async () => {
             const result = await F.filterAsync(predicateEven, dataAsyncGeneratorOfPromises());
-            expect(result).toEqual(dataIterable.filter(_predicateEven));
+            expect(result).toEqual(dataIterable.filter(predicateEven));
         });
     });
 
@@ -872,7 +872,7 @@ describe('async', () => {
         });
         it('transduce using composed async transducers * left * to right, over an enumerable -> object values', async () => {
             const transducerAsync = await F.composeAsync(xformAdd10AsyncBox, xformSquareAsyncBox, xfilterEvenAsync);
-            const reducingFnAsync = await transducerAsync(F.which(F.concatAsync(/*reducingFn*/)));
+            const reducingFnAsync = await transducerAsync(F.concatAsync(/*reducingFn*/));
             const result = await F.reduceAsync(reducingFnAsync, () => [], F.SymbolAsyncIterator ? dataObject : F.iterator(dataObject));
             expect(result).toEqual(expectedResult);
         });
@@ -910,8 +910,8 @@ describe('async', () => {
 
     describe('composeAsync = step-function/sum = reducing-function/reduceAsync = pipeline-runner =~ transduce-async', () => {
         const expectedResult = 1321;
-        const _sum = (a, b) => a + b;
-        const sum = F.which(_sum);
+        const sum = (a, b) => a + b;
+        // const sum = F.which(_sum);
 
         it('transduce using composed async transducers * left * to right, over an enumerable -> object values', async () => {
             const transducerAsync = await F.composeAsync(xformAdd10Async, xformSquareAsync, xfilterEvenAsync);
