@@ -1,6 +1,6 @@
 master|develop|npm
 ---|---|---
-[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=master)](https://travis-ci.org/sdawood/dynamo-update-expression)|[![Build Status](https://travis-ci.org/sdawood/dynamo-update-expression.svg?branch=develop)](https://travis-ci.org/sdawood/dynamo-update-expression)|[![npm version](https://badge.fury.io/js/dynamo-update-expression.svg)](https://badge.fury.io/js/functional.js)
+[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=master)](https://travis-ci.org/sdawood/functional.js)|[![Build Status](https://travis-ci.org/sdawood/dynamo-update-expression.svg?branch=develop)](https://travis-ci.org/sdawood/dynamo-update-expression)|[![npm version](https://badge.fury.io/js/dynamo-update-expression.svg)](https://badge.fury.io/js/functional.js)
 
 # Functional.js
 
@@ -183,7 +183,7 @@ expect(result).toEqual([144, 196, 256, 324, 400]);
 It's clear from the above section that transducers are effectively a reduce operation at the heart.
 The clean protocol with the distinct signatures for a `Transformer`, a `transducer funtion` allow for composition and fit into the contract of `reduce`
 
-```
+```javascript
 function reduce(reducingFn, initFn, enumerable, resultFn = unreduced)
 ```
 * @param reducingFn: function of arity 2, (acc, input) -> new acc, can be a composed function of many Transformers
@@ -194,7 +194,7 @@ function reduce(reducingFn, initFn, enumerable, resultFn = unreduced)
 ### mapCat
 To understand transducers let's use a popular concatMap example, the functional name for that transducers is mapCat since it composes `map transducer function` with `cat transducer function`
 
-```
+```javascript
 /**
  * cat is a transducer fn
  * cat:: fn -> acc -> x -> acc
@@ -203,7 +203,7 @@ const cat = (reducingFn, {factory = identity} = {}) => (acc, input) => factory([
 ```
 Note: how cat adheres to the transducer function signature above, but ignores the `reducingFn` argument. While this is true, having `cat` implementing a transducer function means that it can be piped and composed with other Transformers functions transparently
 
-```
+```javascript
 /**
  * mapcat is a transducer fn
  * mapcat:: fn -> acc -> x -> acc
@@ -277,7 +277,7 @@ Yields a new iterator with the new partition when result from partitioning funct
 Each iterator has a metadata() function attached to retrieve the partitioning function result associated with it.
 
 ### sticky(n, {when = identity, recharge = false} = {}) => partitioningFn => {}
-```
+```javascript
 /**
  * stickiness decorator for a partitioning function
  *
@@ -378,7 +378,7 @@ module.exports = {
 
 ## Build Targets
 Currently the following target build environments are configured for babel-preset-env plugin
-```
+```javascript
  "targets": {
    "node": 6.10,
    "browsers": ["last 10 versions", "ie >= 7"]
