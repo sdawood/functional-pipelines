@@ -1,0 +1,70 @@
+{
+  "name": "functional.js",
+  "version": "1.0.0",
+  "description": "functional pipelines for Java Script",
+  "main": "index.js",
+  "scripts": {
+    "commit": "git-cz",
+    "test": "npm run eslint && jest --verbose",
+    "prebuild": "rimraf lib",
+    "build": "babel --copy-files --out-dir lib --ignore *.spec.js src",
+    "eslint": "./node_modules/.bin/eslint src --quiet",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "dependencies": {
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-runtime": "~6.26.0"
+  },
+  "devDependencies": {
+    "@bubltechnology/customizable-commit-analyzer": "^1.0.2-0",
+    "babel-cli": "~6.26.0",
+    "babel-eslint": "^7.2.1",
+    "babel-plugin-transform-async-generator-functions": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "~6.23.0",
+    "babel-plugin-transform-runtime": "~6.23.0",
+    "babel-preset-env": "~1.2.2",
+    "eslint": "~3.18.0",
+    "jest": "~19.0.2",
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0",
+    "rimraf": "^2.6.1",
+    "semantic-release": "^6.3.6"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    },
+    "commitTypeMap": {
+      "feat": "minor",
+      "fix": "patch",
+      "docs": "patch",
+      "refactor": "patch",
+      "perf": "patch",
+      "style": null,
+      "test": null,
+      "chore": null
+    }
+  },
+  "release": {
+    "analyzeCommits": "@bubltechnology/customizable-commit-analyzer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sdawood/functional.js.git"
+  },
+  "keywords": [
+    "functional",
+    "pipe",
+    "compose",
+    "async",
+    "transducer",
+    "reduce",
+    "pure"
+  ],
+  "author": "Shaady Dawood <shaadydawood@gmail.com> (http://github.com/sdawood/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sdawood/functional.js/issues"
+  },
+  "homepage": "https://github.com/sdawood/functional.js#readme"
+}
