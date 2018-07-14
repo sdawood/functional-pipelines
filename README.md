@@ -69,8 +69,8 @@ zip accepts iterators or generators
 ```javascript
 const data = [0, 1, 2, 'a', 'b', 'c', 3, 'd', 'e', 4, 5, 6, 7, 'f'];
 const expectedResult = [[0, 1, 2], ["a", "b", "c"], [3], ["d", "e"], [4, 5, 6, 7], ["f"]];
-const partitionGen = coll.partitionBy(x => typeof x === 'string', data);
-const result = coll.map(iter => coll.map(coll.identity, iter), partitionGen);
+const partitionGen = F.partitionBy(x => typeof x === 'string', data);
+const result = F.map(iter => F.map(F.identity, iter), partitionGen);
 expect(result).toEqual(expectedResult);
 ```
 Note that the result iterators each contain a metadata function that return the evaluated result of the predicateFn.
