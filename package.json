@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
-    "test": "npm run eslint && jest --verbose",
+    "test": "jest --verbose",
     "prebuild": "rimraf lib",
     "build": "babel --copy-files --out-dir lib --ignore *.spec.js src",
-    "eslint": "./node_modules/.bin/eslint src --quiet",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "dependencies": {
