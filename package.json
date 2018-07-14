@@ -2,7 +2,7 @@
   "name": "functional.js",
   "version": "0.0.0-development",
   "description": "functional pipelines for Java Script",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "commit": "git-cz",
     "test": "jest",
@@ -53,6 +53,11 @@
     "type": "git",
     "url": "https://github.com/sdawood/functional.js.git"
   },
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "functional",
     "pipe",

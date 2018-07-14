@@ -1,14 +1,11 @@
 language: node_js
 cache:
   directories:
-    - ~/.npm
+    - node_modules
 notifications:
   email: false
 node_js:
-  - '10'
-  - '9'
-  - '8'
-  - '6'
+  - '8.3'
 before_script:
   - npm prune
 script:
@@ -16,7 +13,7 @@ script:
   - npm run build
 
 after_success:
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ "$TRAVIS_BRANCH" == "master" ]]; then echo -e "Build passed, semantic-releasing to www.npmjs.com from branch [$TRAVIS_BRANCH] ..." && npm run travis-deploy-once "npm run semantic-release"; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ "$TRAVIS_BRANCH" == "master" ]]; then echo -e "Build passed, semantic-releasing to www.npmjs.com from branch [$TRAVIS_BRANCH] ..." && npm run semantic-release; fi
   - if [[ "$TRAVIS_BRANCH" != "master" ]]; then echo -e "Build passed, not publishing from branch [$TRAVIS_BRANCH]"; fi
 branches:
   except:
