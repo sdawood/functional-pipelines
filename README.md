@@ -9,9 +9,17 @@ functional-pipelines gives you pipe, compose, pipeAsync and composeAsync to star
 
 Once you have developed a taste for functional pipelines, you would want to use reduce and reduceRight, they also come in async flavours.
 
-The best part is pure functional transducers that can pipe and compose transformers seamlessly without instantiating objects or implementing interfaces.
+Using the standard array.reduce() you are forced to materialize the result into an array.
+What about the cases where you want to apply a sequence of transformations and filtering, or even have that pipeline constructed dynamically at runtime. Ideally we would want to apply the whole pipeline to each input value all the way through, as you would expect from a processing pipeline. You shouldn't have to worry about which data structure to materliaze the final result into and you might even never reach the end of the input generator/iterator and never materialize the sequence of values.
+
+Transducers are designed to solve this problem. This library is the first (AFAIK) pure functionl implementation of Transducers that supports async reducing functions and async generator input sequences. Also the `resultFn` and configurable `early termination` are supported.
+
+With pure functional transducers you can pipe and compose transformers seamlessly without instantiating objects or implementing interfaces or allocating memory for intermediate data structures.
 
 Transformer function, transducing functions and reducing functions are explained in more details below.
+
+For background information about transducers, a recommended starting point is [this medium article](https://medium.com/@roman01la/understanding-transducers-in-javascript-3500d3bd9624), also the Transducers section below expands on the concepts with functional examples/
+
 
 ## Installation
 ```sh
@@ -190,6 +198,69 @@ function reduce(reducingFn, initFn, enumerable, resultFn = unreduced)
 * @param initFn: produces the initial value for the accumulator, `() => []` would do in most cases
 * @param enumerable: iterator or generator to be reduced
 * @param: resultFn: applied to the final result, by default unpacks a reduced value if any
+
+## The @@reduced protocol, a.k.a Early Termination of reduce/reduceAsync
+It is very handy and helps you avoid global flags or unnecessary nesting to have reduce/reduceAsync support early termination.
+Early termination gives a way to the reducing function to signal that is has consumed enough values and the result is `reduced`.
+
+both reduce() and reduceAsync support early termination, F.reduced(), F.isReduced() and F.unreduced() are helper functions you can use in your reducing function to create, check for and unpack a reduced value according to the transducers-protocol standards.
+
+```javascript
+const reduced = x => x && x['@@transducer/reduced'] ? x :
+    {
+        '@@transducer/value': x,
+        '@@transducer/reduced': true
+    };
+
+const isReduced = x => x && x['@@transducer/reduced'];
+
+const unreduced = result => isReduced(result) ? result['@@transducer/value'] : result;
+```
+
+Early termination is better explained by an example:
+```javascript
+    describe('reduceAsync with early termination', () => {
+        describe('when reducedRejectedPromises = true', () => {
+            const reducedRejectedPromises = true;
+            it('terminates when reduceAsync receives a reduced accumulator', async () => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.resolve("Forbidden");
+                    yield Promise.resolve(3);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return F.reduced(acc);
+                }
+
+                const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                expect(result).toEqual(3);
+            });
+
+            it('terminates when reduceAsync receives a rejected promise as input', async () => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.reject(3);
+                    yield Promise.resolve(4);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return F.reduced(acc);
+                }
+
+                const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                expect(result).toEqual(3);
+            });
+        });
+    });
+```
+
+If the default value for reducedRejectedPromises is changed to false, rejected input values and rejection from the async reducing function would throw, feel free to configure the desired behaviour.
+Check the test-suite for more examples.
 
 ### mapCat
 To understand transducers let's use a popular concatMap example, the functional name for that transducers is mapCat since it composes `map transducer function` with `cat transducer function`

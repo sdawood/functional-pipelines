@@ -364,14 +364,14 @@ describe('sync', () => {
     });
 
     describe('sticky a.k.a memorizeWhen', () => {
-        const data1 =                    [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1];
-        const expected1_2_recharge =     [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1]; // recharge: true, recharge sticky counter with every new positive hit
+        const data1 = [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1];
+        const expected1_2_recharge = [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1]; // recharge: true, recharge sticky counter with every new positive hit
         const expected1_2_not_recharge = [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1]; // recharge: false, accidentally equal!!
-        const data2 =                    [0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1];
-        const expected2_2_recharge =     [0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1]; // recharge: true
+        const data2 = [0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1];
+        const expected2_2_recharge = [0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1]; // recharge: true
         const expected2_2_not_recharge = [0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1];
-        const data3 =                    [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1];
-        const expected3_3_recharge =     [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]; // recharge: true
+        const data3 = [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1];
+        const expected3_3_recharge = [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]; // recharge: true
         const expected3_3_not_recharge = [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1];
 
         describe('with recharge = true', () => {
@@ -412,17 +412,32 @@ describe('sync', () => {
 
         describe('with context adjusted n & recharge = false', () => {
             it('1) remembers the match-result n times, skipping the function invocation while in `repeat` mode', () => {
-                const stickyN = F.sticky(10, {when: (r2, r1, ctx) => {ctx.n = 1; return r2 === 1}, recharge: false})(F.identity);
+                const stickyN = F.sticky(10, {
+                    when: (r2, r1, ctx) => {
+                        ctx.n = 1;
+                        return r2 === 1
+                    }, recharge: false
+                })(F.identity);
                 const result = F.map(stickyN, data1);
                 expect(result).toEqual(expected1_2_not_recharge);
             });
             it('2) remembers the match-result n times, skipping the function invocation while in `repeat` mode', () => {
-                const stickyN = F.sticky(10, {when: (r2, r1, ctx) => {ctx.n = 1; return r2 === 1}, recharge: false})(F.identity);
+                const stickyN = F.sticky(10, {
+                    when: (r2, r1, ctx) => {
+                        ctx.n = 1;
+                        return r2 === 1
+                    }, recharge: false
+                })(F.identity);
                 const result = F.map(stickyN, data2);
                 expect(result).toEqual(expected2_2_not_recharge);
             });
             it('3) remembers the match-result n times, skipping the function invocation while in `repeat` mode', () => {
-                const stickyN = F.sticky(10, {when: (r2, r1, ctx) => {ctx.n = 2; return r2 === 1}, recharge: false})(F.identity);
+                const stickyN = F.sticky(10, {
+                    when: (r2, r1, ctx) => {
+                        ctx.n = 2;
+                        return r2 === 1
+                    }, recharge: false
+                })(F.identity);
                 const result = F.map(stickyN, data3);
                 expect(result).toEqual(expected3_3_not_recharge);
             });
@@ -950,4 +965,88 @@ describe('async', () => {
             expect(result).toEqual(expectedResult);
         });
     });
+    describe('reduceAsync with early termination', () => {
+        describe('when reducedRejectedPromises = true', () => {
+            const reducedRejectedPromises = true;
+            it('terminates when reduceAsync receives a reduced accumulator', async () => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.resolve("Forbidden");
+                    yield Promise.resolve(3);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return F.reduced(acc);
+                }
+
+                const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                expect(result).toEqual(3);
+            });
+
+            it('terminates when reduceAsync receives a rejected promise as input', async () => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.reject(3);
+                    yield Promise.resolve(4);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return F.reduced(acc);
+                }
+
+                const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                expect(result).toEqual(3);
+            });
+        });
+        describe('when reducedRejectedPromises = false', () => {
+            const reducedRejectedPromises = false;
+
+            it('throws when reduceAsync receives a rejected accumulator', async done => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.resolve("Forbidden");
+                    yield Promise.resolve(3);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return Promise.reject(acc);
+                }
+
+                try {
+                    const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                    done.fail('should throw')
+                } catch (e) {
+                    done();
+                }
+
+            });
+
+            it('throws when reduceAsync receives a rejected promise as input', async done => {
+                async function* genPromises() {
+                    yield Promise.resolve(1);
+                    yield Promise.resolve(2);
+                    yield Promise.reject(3);
+                    yield Promise.resolve(4);
+                }
+
+                const reducingFn = async (acc, input) => {
+                    if (F.isNumber(input)) return acc + input;
+                    else return F.reduced(acc);
+                }
+
+                try {
+                    const result = await F.reduceAsync(reducingFn, 0, genPromises(), undefined, reducedRejectedPromises);
+                    done.fail('should throw')
+                } catch (e) {
+                    done();
+                }
+            });
+        });
+    })
 });

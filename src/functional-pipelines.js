@@ -7,7 +7,7 @@
 const which = (fn, {input = true, output = false, stringify = true} = {}) => (...args) => {
     console.log(`${fn.name || 'function'}(${input ? JSON.stringify(args, null, 0) : '...'})`);
     const result = fn(...args);
-    if (output) console.log(`${fn.name || 'function'} :: (${input ? JSON.stringify(args, null, 0) : '...'}) -> ${stringify ? JSON.stringify(result, null, 0) || result: result}`);
+    if (output) console.log(`${fn.name || 'function'} :: (${input ? JSON.stringify(args, null, 0) : '...'}) -> ${stringify ? JSON.stringify(result, null, 0) || result : result}`);
     return result;
 };
 
@@ -64,13 +64,19 @@ const yrruc = fn => (...args) => x => fn(x, ...args); // reversed `curry`
 
 const pipe = (...fns) => reduceRight((f, g) => (...args) => f(g(...args)), null, fns);
 
-const pipes = (...fns) => pipe(reduceRight((f, g) => (...args) => { const result = g(...args); return isReduced(result) ? result['@@transducer/value'] : f(result); }, null, fns), unreduced);
+const pipes = (...fns) => pipe(reduceRight((f, g) => (...args) => {
+    const result = g(...args);
+    return isReduced(result) ? result['@@transducer/value'] : f(result);
+}, null, fns), unreduced);
 // const pipes = (...fns) => reduceRight((f, g) => (...args) => { const result = g(...args); return isReduced(result) ? result : f(result); }, null, fns);
 
 const compose = (...fns) => reduce((f, g) => (...args) => f(g(...args)), null, fns);
 
 // reduce/reduceRight now handle early termination protocol `reduced()` and use `unreduced` as a default result function
-const composes = (...fns) => compose(unreduced, reduce((f, g) => (...args) => { const result = g(...args); return isReduced(result) ? result['@@transducer/value'] : f(result); }, null, fns));
+const composes = (...fns) => compose(unreduced, reduce((f, g) => (...args) => {
+    const result = g(...args);
+    return isReduced(result) ? result['@@transducer/value'] : f(result);
+}, null, fns));
 // const composes = (...fns) => reduce((f, g) => (...args) => { const result = g(...args); return isReduced(result) ? result : f(result); }, null, fns);
 
 const composeAsync = (...fns) => reduceAsync((fn1, fn2) => async (...args) => fn1(await fn2(...args)), undefined, fns);
@@ -309,7 +315,7 @@ function toIterator(generator, {indexed = false, kv = false} = {}) {
 
 function iterator(o, {indexed = false, kv = false, metadata = lazy({})} = {}) {
     let iter;
-    if(isNil(o)) {
+    if (isNil(o)) {
         return empty();
     } else if (isGenerator(o)) { // generator only
         iter = toIterator(o, {indexed, kv});
@@ -373,10 +379,10 @@ const sticky = (n, {when = identity, recharge = false} = {}) => fn => {
 /******************* [ Transducers+ ] *******************/
 
 const reduced = x => x && x['@@transducer/reduced'] ? x :
-        {
-            '@@transducer/value': x,
-            '@@transducer/reduced': true
-        };
+    {
+        '@@transducer/value': x,
+        '@@transducer/reduced': true
+    };
 
 const isReduced = x => x && x['@@transducer/reduced'];
 
@@ -391,7 +397,12 @@ const unreduced = result => isReduced(result) ? result['@@transducer/value'] : r
  * @param initFn: produces the initial value for the accumulator
  * @returns {Accumulator-Collection}
  */
-function reduce(reducingFn, initFn, enumerable, resultFn = unreduced) {
+function reduce(reducingFn, initFn, enumerable, resultFn) {
+    if (isFunction(resultFn)) {
+        resultFn = pipe(unreduced, resultFn);
+    } else {
+        resultFn = unreduced;
+    }
     let result;
     const iter = iterator(enumerable);
 
@@ -403,7 +414,6 @@ function reduce(reducingFn, initFn, enumerable, resultFn = unreduced) {
 
     for (const value of iter) {
         if (isReduced(result)) {
-            result = result['@@transducer/value']; // TODO: should we rely on the default resultFn, leaving responsibility on the user if overridden?
             break;
         }
         result = reducingFn(result, value);
@@ -411,7 +421,12 @@ function reduce(reducingFn, initFn, enumerable, resultFn = unreduced) {
     return resultFn(result);
 }
 
-function reduceRight(reducingFn, initFn, array, resultFn = unreduced) {
+function reduceRight(reducingFn, initFn, array, resultFn) {
+    if (isFunction(resultFn)) {
+        resultFn = pipe(unreduced, resultFn);
+    } else {
+        resultFn = unreduced;
+    }
     let result;
     const iter = iterator(array.slice().reverse());
 
@@ -423,7 +438,6 @@ function reduceRight(reducingFn, initFn, array, resultFn = unreduced) {
 
     for (const value of iter) {
         if (isReduced(result)) {
-            result = result['@@transducer/value'];
             break;
         }
         result = reducingFn(result, value);
@@ -445,14 +459,31 @@ const flatten = enumerable => reduce(cat(), () => [], enumerable);
  * HINT: an async reducing function is a candidate trap for async-throttling/rate-limiting/quota-limiting
  * @returns {Promise<Accumulator-Collection>}
  */
-const reduceAsync = async (reducingFn, initFn, enumerable) => {
+const reduceAsync = async (reducingFn, initFn, enumerable, resultFn, reducedRejectedPromises = true) => {
+    if (isFunction(resultFn)) {
+        resultFn = pipe(unreduced, resultFn);
+    } else {
+        resultFn = unreduced;
+    }
     let result;
     const isAsync = isAsyncGenerator(enumerable) || (!isIterable(enumerable) && !SymbolAsyncIterator); // https://github.com/babel/babel/issues/7467
-    const iter = isAsync ? enumerable : iterator(enumerable); // treat this argument as an iterable;
+    const iter = isAsync ? await enumerable : iterator(enumerable); // treat this argument as an iterable;
+
+    const resolveValue = async (x, reducedRejectedPromises) => {
+        try {
+            return await x;
+        } catch (error) {
+            if (reducedRejectedPromises) {
+                return reduced(error);
+            } else {
+                throw error;
+            }
+        }
+    };
 
     if (!initFn) {
         if (isAsync) {
-            initFn = lazy((await iter.next()).value);
+            initFn = lazy((await (await iter.next())).value);
         } else {
             const [initValue] = iter;
             initFn = lazy(initValue);
@@ -461,25 +492,36 @@ const reduceAsync = async (reducingFn, initFn, enumerable) => {
 
     result = initFn();
     if (isAsync) {
-        for await (const value of iter) { // see: https://babeljs.io/docs/plugins/syntax-async-generators/
-            result = await result;
+        let done = false;
+        let value = undefined;
+        ({value, done} = await iter.next());
+        do {
+            result = await resolveValue(result, reducedRejectedPromises);
             if (isReduced(result)) {
-                result = result['@@transducer/value'];
                 break;
             }
-            result = await reducingFn(result, await value);
-        }
+            const resolvedValue = await resolveValue(value, reducedRejectedPromises);
+            if (isReduced(resolvedValue)) {
+                break;
+            }
+            result = await reducingFn(result, resolvedValue);
+
+            ({value, done} = (await (await iter.next())));
+        } while (!done)
     } else {
-        for (const value of iter) {
-            result = await result;
+        for (let value of iter) {
+            result = await resolveValue(result, reducedRejectedPromises);
             if (isReduced(result)) {
-                result = result['@@transducer/value'];
                 break;
             }
-            result = await reducingFn(result, await value);
+            const resolvedValue = await resolveValue(value, reducedRejectedPromises);
+            if (isReduced(resolvedValue)) {
+                break;
+            }
+            result = await reducingFn(result, resolvedValue);
         }
     }
-    return result;
+    return resultFn(result);
 };
 
 /**
