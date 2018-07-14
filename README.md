@@ -9,7 +9,7 @@ functional-pipelines gives you pipe, compose, pipeAsync and composeAsync to star
 
 Once you have developed a taste for functional pipelines, you would want to use reduce and reduceRight, they also come in async flavours.
 
-The best part is pure functional transducers that can pipe and compose transforms seamlessly without instantiating objects of implementing interfaces.
+The best part is pure functional transducers that can pipe and compose transformers seamlessly without instantiating objects or implementing interfaces.
 
 Transformer function, transducing functions and reducing functions are explained in more details below.
 
@@ -108,7 +108,7 @@ const composeAsync = (...fns) => reduceAsync((fn1, fn2) => async (...args) => fn
 Aside from supporting composing functions, compose can also accept a pipeline of transformer(s)
 
 # Transducers
-For background information about transducers, a recommended starting point is [this medium article](https://medium.com/@roman01la/understanding-transducers-in-javascript-3500d3bd9624)
+For background information about transducers, a recommended starting point is [this medium article](https://medium.com/@roman01la/understanding-transducers-in-javascript-3500d3bd9624).
 For specs of the transformer and transducer protocol check the [transducers-js git repo documentation](https://github.com/cognitect-labs/transducers-js#the-transducer-protocol)
 
 Note that the two popular transducer implementations namely [cognitect-labs transducers-js](https://github.com/cognitect-labs/transducers-js) and [transcuders.js](https://github.com/jlongster/transducers.js) both use an OO implementation and overlook some details of the protocol like the transducer result() function.
@@ -124,7 +124,7 @@ If you have used Java Script reduce, you are familiar with the signature of a re
 ## Transducer Function
 A Transducer Function is a function that accepts a reducing function and returns a reducing function.
 ```javascript
-(reducingFn => (acc, input) => {};
+reducingFn => (acc, input) => {};
 ```
 
 ## Transformer
