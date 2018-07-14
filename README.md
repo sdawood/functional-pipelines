@@ -1,6 +1,6 @@
 master|develop|npm
 ---|---|---
-[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=master)](https://travis-ci.org/sdawood/functional.js)|[![Build Status](https://travis-ci.org/sdawood/dynamo-update-expression.svg?branch=develop)](https://travis-ci.org/sdawood/dynamo-update-expression)|[![npm version](https://badge.fury.io/js/dynamo-update-expression.svg)](https://badge.fury.io/js/functional.js)
+[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=master)](https://travis-ci.org/sdawood/functional.js)|[![Build Status](https://travis-ci.org/sdawood/functional.js.svg?branch=develop)](https://travis-ci.org/sdawood/functional.js)|[![npm version](https://badge.fury.io/js/functional.js.svg)](https://badge.fury.io/js/functional.js)
 
 # Functional.js
 
