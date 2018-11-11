@@ -377,6 +377,13 @@ const sticky = (n, {when = identity, recharge = false} = {}) => fn => {
 
 
 /******************* [ Transducers+ ] *******************/
+const wrapped = into => x => x && x[`@@transducer/${into}`] ? x :
+    {
+        [`@@transducer/value`]: x,
+        [`@@transducer/${into}`]: true
+    };
+
+const isWrapped = into => x => x && x[`@@transducer/${into}`];
 
 const reduced = x => x && x['@@transducer/reduced'] ? x :
     {
