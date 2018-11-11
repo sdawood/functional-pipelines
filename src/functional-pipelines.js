@@ -385,6 +385,8 @@ const wrapped = into => x => x && x[`@@transducer/${into}`] ? x :
 
 const isWrapped = into => x => x && x[`@@transducer/${into}`];
 
+const unwrapped = into => result => isWrapped(into)(result) ? result['@@transducer/value'] : result;
+
 const reduced = x => x && x['@@transducer/reduced'] ? x :
     {
         '@@transducer/value': x,
