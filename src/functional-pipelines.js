@@ -12,9 +12,18 @@ const which = (fn, {input = true, output = false, stringify = true} = {}) => (..
 };
 
 /**
- * debugging plug, insert within a pipe or compose pipeline to peek at the cascading argument
- * @param x
- * @returns {*}
+ * Calls console.log on the value, then returns the value.
+ * useful in debugging `pipe` or `compose` pipelines
+ *
+ *
+ * @func
+ * @memberOf F
+ * @since v0.0.0-development
+ * @param {*} x
+ * @return {*} `x`.
+ * @example
+ * F.peek(100); // => 100
+ * // logs '100'
  */
 const peek = x => {
     console.log(x);
@@ -24,6 +33,7 @@ const peek = x => {
 const __ = {'@@functional/placeholder': true};
 const _is__ = a => a != null && typeof a === 'object' && a['@@functional/placeholder'] === true;
 
+// TODO: what does this func do?
 const withOneSlot = fn => (...args) => {
     const slots = args.reduce((acc, a, index) => {
         if (_is__(a)) acc['__1'] = index;
@@ -35,7 +45,7 @@ const withOneSlot = fn => (...args) => {
     };
 };
 
-/**
+/***
  * Functional building blocks with zero dependencies
  * identity, pipe, compose, empty, append, map, filter, reduce, transformers, transducers
  * NOTE: map, filter, reduce can handle iterator/generator, lodash and ramda currently don't
@@ -53,10 +63,60 @@ const S = f => g => x => f(x)(g(x));
 const P = f => g => x => y => f(g(x))(g(y));
 const Y = f => (g => g(g))(g => f(x => g(g)(x)));
 
+/**
+ * A function that does nothing but return the parameter supplied to it.
+ * Used as a placeholder function.
+ *
+ * @func
+ * @memberOf F
+ * @since v0.0.0-development
+ * @param {*} x The value to return.
+ * @return {*} The input value, `x`.
+ * @example
+ *  F.identity(1); // => 1
+ */
 const identity = I;
+
+/**
+ * A function that does nothing but return the parameter supplied to it wrapped
+ * into a Promise. Used as a placeholder function.
+ *
+ * @func
+ * @memberOf F
+ * @since v0.0.0-development
+ * @param {*} x The value to return.
+ * @return {*} The input value wrapped into a Promise, `Promise.resolve(x)`.
+ * @example
+ *  F.identityAsync(1); // => Promise.resolve(1)
+ */
 const identityAsync = x => Promise.resolve(x);
+
+/**
+ * A function that does nothing but return the parameter supplied to it wrapped
+ * into a Promise. Used as a placeholder function.
+ *
+ * @func
+ * @memberOf F
+ * @since v0.0.0-development
+ * @param {*} val The value to wrap in a function
+ * @return {Function} A Function :: * -> val.
+ * @example
+ *  const lazyOne = F.lazy(1);
+ *  lazyOne() // => 1
+ */
 const lazy = K;
 
+/**
+ * A generator function that does nothing.
+ * Used as a placeholder generator function.
+ *
+ * @func
+ * @memberOf F
+ * @since v0.0.0-development
+ * @example
+ *  const emptyGen = F.empty();
+ *  emptyGen() // => generator<suspended>
+ */
 const empty = function* () {
 };
 
