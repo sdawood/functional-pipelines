@@ -63,6 +63,7 @@ const empty = function* () {
 const yrruc = fn => (...args) => x => fn(x, ...args); // reversed `curry`
 
 const pipe = (...fns) => reduceRight((f, g) => (...args) => f(g(...args)), null, fns);
+const pipeWith = (...fns) => reduceRight((f, g) => ctx => (...args) => f(ctx)(g(ctx)(...args)), null, fns);
 
 const pipes = (...fns) => pipe(reduceRight((f, g) => (...args) => {
     const result = g(...args);
@@ -169,20 +170,13 @@ function* entries(o, values = false, kv = true) {
 }
 
 
-// function* range(...args) {
-//     switch (args.length) {
-//         case 1: {
-//             break;
-//         }
-//         case 2: {
-//             break;
-//         }
-//
-//     }
-//     if (!isNumber(take) || !isNumber(start)) return;
-//     while (take) {
-//     }
-// }
+function* range({start = 0, end = Number.POSITIVE_INFINITY, step = 1}) {
+    let index = start || 0;
+    while(index < end) {
+        yield index;
+        index += step;
+    }
+}
 
 /**
  * zip generator that works with iterables, iterators and generators
@@ -213,7 +207,7 @@ function* takeGen(n, enumerable) {
     enumerable = iterator(enumerable);
 
     let {value, done} = enumerable.next();
-    while (!done && n-- > 0) {
+    while ((!done || value !== undefined) && n-- > 0) {
         yield value;
         ({value, done} = enumerable.next());
     }
@@ -306,7 +300,8 @@ function toIterator(generator, {indexed = false, kv = false} = {}) {
             return this;
         },
         next() {
-            const {value, done} = generator.next();
+            const {value, done: innerDone} = generator.next();
+            let done = innerDone ? value !== undefined ? false : true : false;
             this.index = done ? this.index : this.index != null ? this.index + 1 : 0;
             return indexed ? {value: kv ? [this.index, value] : [value, this.index], done} : {value, done};
         }
@@ -695,6 +690,7 @@ module.exports = {
     flip,
     ifElse,
     pipe,
+    pipeWith,
     pipes,
     compose,
     composes,

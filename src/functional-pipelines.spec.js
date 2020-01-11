@@ -49,19 +49,19 @@ async function* dataAsyncGeneratorOfPromises() {
     yield* dataIterable.map(F.identityAsync);
 }
 
-const fn1 = x => x + 10;
-const fn2 = x => x * x;
+const nx10 = x => x + 10;
+const nxn = x => x * x;
 // const fn1 = F.which(fn1);
 // const fn2 = F.which(_fn2);
 
-const fn1Box = x => [fn1(x)];
-const fn2Box = x => [fn2(x)];
+const nx10Box = x => [nx10(x)];
+const nxnBox = x => [nxn(x)];
 
-const fn1Async = x => F.identityAsync(fn1(x));
-const fn2Async = x => F.identityAsync(fn2(x));
+const nx10Async = x => F.identityAsync(nx10(x));
+const nxnAsync = x => F.identityAsync(nxn(x));
 
-const fn1AsyncBox = x => F.identityAsync(fn1Box(x));
-const fn2AsyncBox = x => F.identityAsync(fn2Box(x));
+const nx10AsyncBox = x => F.identityAsync(nx10Box(x));
+const nxnAsyncBox = x => F.identityAsync(nxnBox(x));
 
 const predicateEven = x => x % 2 === 0;
 // const predicateEven = F.which(predicateEven);
@@ -78,12 +78,12 @@ const resolveArgs = fn => async (...args) => {
 
 // Transducers
 
-const xformAdd10 = F.mapTransformer(fn1);
-const xformSquare = F.mapTransformer(fn2);
+const xformAdd10 = F.mapTransformer(nx10);
+const xformSquare = F.mapTransformer(nxn);
 const xfilterEven = F.filterTransformer(predicateEven);
 
-const xformAdd10Box = F.mapTransformer(fn1Box);
-const xformSquareBox = F.mapTransformer(fn2Box);
+const xformAdd10Box = F.mapTransformer(nx10Box);
+const xformSquareBox = F.mapTransformer(nxnBox);
 
 // Short Circuited Transduction
 
@@ -92,12 +92,12 @@ const xfMax = n => F.mapTransformer(predicateMax(n));
 
 // Async Transducers
 
-const xformAdd10Async = F.mapAsyncTransformer(fn1Async);
-const xformSquareAsync = F.mapAsyncTransformer(fn2Async);
+const xformAdd10Async = F.mapAsyncTransformer(nx10Async);
+const xformSquareAsync = F.mapAsyncTransformer(nxnAsync);
 const xfilterEvenAsync = F.filterAsyncTransformer(predicateEvenAsync);
 
-const xformAdd10AsyncBox = F.mapAsyncTransformer(fn1AsyncBox);
-const xformSquareAsyncBox = F.mapAsyncTransformer(fn2AsyncBox);
+const xformAdd10AsyncBox = F.mapAsyncTransformer(nx10AsyncBox);
+const xformSquareAsyncBox = F.mapAsyncTransformer(nxnAsyncBox);
 
 describe('sync', () => {
     describe('iterator', () => {
@@ -163,25 +163,25 @@ describe('sync', () => {
 
     describe('map', () => {
         it('maps a function over an enumerable -> object values', () => {
-            const result = F.map(fn1, dataObject);
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = F.map(nx10, dataObject);
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps a function over an enumerable -> iterable', () => {
-            const result = F.map(fn1, dataIterable);
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = F.map(nx10, dataIterable);
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps a function over an enumerable -> iterator', () => {
-            const result = F.map(fn1, dataIterator());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = F.map(nx10, dataIterator());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps a function over an enumerable -> generator', () => {
-            const result = F.map(fn1, dataGenerator());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = F.map(nx10, dataGenerator());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps a function over an enumerable -> generator of promises', async () => {
-            const result = F.map(resolveArgs(fn1), dataGeneratorOfPromises());
+            const result = F.map(resolveArgs(nx10), dataGeneratorOfPromises());
             const results = await Promise.all(result);
-            expect(results).toEqual(dataIterable.map(fn1));
+            expect(results).toEqual(dataIterable.map(nx10));
         });
     });
 
@@ -213,21 +213,21 @@ describe('sync', () => {
     describe('zipWith, zip', () => {
         it('zips two enumerables into one iterator applying fn([item1, item2]) that can be reduced(append)', () => {
             const expectedResult = [["1", "11"], ["2", "12"], ["3", "13"], ["4", "14"], ["5", "15"], ["6", "16"], ["7", "17"], ["8", "18"], ["9", "19"], ["10", "20"]];
-            const enumerable2 = F.iterator(F.map(fn1, dataIterator()));
+            const enumerable2 = F.iterator(F.map(nx10, dataIterator()));
             const combinedIterator = F.zipWith(dataGenerator(), enumerable2, (...args) => args.map(x => `${x}`));
             const result = F.reduce(F.append(), () => [], combinedIterator);
             expect(result).toEqual(expectedResult);
         });
         it('zips two enumerables into one iterator that can be reduced(append)', () => {
             const expectedResult = [[1, 11], [2, 12], [3, 13], [4, 14], [5, 15], [6, 16], [7, 17], [8, 18], [9, 19], [10, 20]];
-            const enumerable2 = F.iterator(F.map(fn1, dataIterator()));
+            const enumerable2 = F.iterator(F.map(nx10, dataIterator()));
             const combinedIterator = F.zip(dataGenerator(), enumerable2);
             const result = F.reduce(F.append(), () => [], combinedIterator);
             expect(result).toEqual(expectedResult);
         });
         it('zips two enumerables into one iterator that can be reduced(concat)', () => {
             const expectedResult = [1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17, 8, 18, 9, 19, 10, 20];
-            const enumerable2 = F.iterator(F.map(fn1, dataIterator()));
+            const enumerable2 = F.iterator(F.map(nx10, dataIterator()));
             const combinedIterator = F.zip(dataGenerator(), enumerable2);
             const result = F.reduce(F.concat(), () => [], combinedIterator);
             expect(result).toEqual(expectedResult);
@@ -448,7 +448,7 @@ describe('sync', () => {
         const expectedResult = [144, 196, 256, 324, 400];
 
         it('composes functions * right * to left', () => {
-            const composedFn = F.compose(fn2, fn1);
+            const composedFn = F.compose(nxn, nx10);
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
@@ -491,25 +491,25 @@ describe('sync', () => {
 
 
         it('#1: composes() functions * right * to left', () => {
-            const composedFn = F.composes(fn2, fn1, predicateMax(6));
+            const composedFn = F.composes(nxn, nx10, predicateMax(6));
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
 
         it('#2: composes() functions * right * to left', () => {
-            const composedFn = F.composes(fn2, predicateMax(15), fn1);
+            const composedFn = F.composes(nxn, predicateMax(15), nx10);
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
 
         it('#1: composes() functions * right * to left stopping application when reduced()', () => {
-            const composedFn = F.composes(fn2, fn1, predicateMax(6));
+            const composedFn = F.composes(nxn, nx10, predicateMax(6));
             const result = composedFn(7);
             expect(result).toEqual(7);
         });
 
         it('#2: composes() functions * right * to left stopping application when reduced()', () => {
-            const composedFn = F.composes(fn2, predicateMax(15), fn1);
+            const composedFn = F.composes(nxn, predicateMax(15), nx10);
             const result = composedFn(6);
             expect(result).toEqual(16);
         });
@@ -574,7 +574,7 @@ describe('sync', () => {
         const expectedResult = [144, 196, 256, 324, 400];
 
         it('pipes functions * left * to right', () => {
-            const composedFn = F.pipe(fn1, fn2);
+            const composedFn = F.pipe(nx10, nxn);
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
@@ -607,6 +607,18 @@ describe('sync', () => {
             expect(result).toEqual(expectedResult);
         });
     });
+    describe('pipeWith, accepts a pipeline of higer order fn(ctx)(value)', () => {
+        const expectedResult = [144, 196, 256, 324, 400];
+
+        it('pipes functions * left * to right', () => {
+            const composedFn = F.pipeWith(
+              base => n => base + n,
+              base => n => base * n
+            );
+            const result = composedFn(10)(5);
+            expect(result).toEqual(150);
+        });
+    });
 
     describe('pipes = step-function/append = reducing-function/reduce = pipeline-runner =~ transduce \= reduced() early termination', () => {
         const expectedResult = [144, 196, 256, 324, 400];
@@ -617,25 +629,25 @@ describe('sync', () => {
 
 
         it('#1: composes() functions * right * to left', () => {
-            const composedFn = F.pipes(predicateMax(6), fn1, fn2);
+            const composedFn = F.pipes(predicateMax(6), nx10, nxn);
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
 
         it('#2: composes() functions * right * to left', () => {
-            const composedFn = F.pipes(fn1, predicateMax(15), fn2);
+            const composedFn = F.pipes(nx10, predicateMax(15), nxn);
             const result = composedFn(5);
             expect(result).toEqual(225);
         });
 
         it('#1: composes() functions * right * to left stopping application when reduced()', () => {
-            const composedFn = F.pipes(predicateMax(6), fn1, fn2);
+            const composedFn = F.pipes(predicateMax(6), nx10, nxn);
             const result = composedFn(7);
             expect(result).toEqual(7);
         });
 
         it('#2: composes() functions * right * to left stopping application when reduced()', () => {
-            const composedFn = F.pipes(fn1, predicateMax(15), fn2);
+            const composedFn = F.pipes(nx10, predicateMax(15), nxn);
             const result = composedFn(6);
             expect(result).toEqual(16);
         });
@@ -700,7 +712,7 @@ describe('sync', () => {
         const expectedResult = [144, 196, 256, 324, 400];
 
         it('composes functions * right * to left', () => {
-            const composedFn = F.compose(fn2Box, fn1Box);
+            const composedFn = F.compose(nxnBox, nx10Box);
             const result = composedFn(5);
             expect(result).toEqual([225]);
         });
@@ -771,28 +783,28 @@ describe('sync', () => {
 describe('async', () => {
     describe('mapAsync', () => {
         it('maps an async function over an enumerable -> object values', async () => {
-            const result = await F.mapAsync(fn1Async, F.SymbolAsyncIterator ? dataObject : F.iterator(dataObject));
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, F.SymbolAsyncIterator ? dataObject : F.iterator(dataObject));
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps an async function over an enumerable -> iterable', async () => {
-            const result = await F.mapAsync(fn1Async, dataIterable);
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, dataIterable);
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps an async function over an enumerable -> iterator', async () => {
-            const result = await F.mapAsync(fn1Async, dataIterator());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, dataIterator());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps an async function over an enumerable -> generator', async () => {
-            const result = await F.mapAsync(fn1Async, dataGenerator());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, dataGenerator());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps an async function over an enumerable -> async-generator of values', async () => {
-            const result = await F.mapAsync(fn1Async, dataAsyncGenerator());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, dataAsyncGenerator());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
         it('maps an async function over an enumerable -> async-generator of Promises', async () => {
-            const result = await F.mapAsync(fn1Async, dataAsyncGeneratorOfPromises());
-            expect(result).toEqual(dataIterable.map(fn1));
+            const result = await F.mapAsync(nx10Async, dataAsyncGeneratorOfPromises());
+            expect(result).toEqual(dataIterable.map(nx10));
         });
     });
 
@@ -831,7 +843,7 @@ describe('async', () => {
         const expectedResult = [144, 196, 256, 324, 400];
 
         it('composes async functions * right * to left', async () => {
-            const composedFn = await F.composeAsync(fn2Async, fn1Async);
+            const composedFn = await F.composeAsync(nxnAsync, nx10Async);
             const result = await composedFn(5);
             expect(result).toEqual(225);
         });
@@ -881,7 +893,7 @@ describe('async', () => {
         const expectedResult = [144, 196, 256, 324, 400];
 
         it('composes async functions * right * to left', async () => {
-            const composedFn = await F.composeAsync(fn2AsyncBox, fn1AsyncBox);
+            const composedFn = await F.composeAsync(nxnAsyncBox, nx10AsyncBox);
             const result = await composedFn(5);
             expect(result).toEqual([225]);
         });
